@@ -1,0 +1,30 @@
+{
+    "env": {
+        "myIncludePath": [
+            "${workspaceFolder}/src",
+            "${workspaceFolder}/vendor/Unity/src"
+        ],
+        "myDefines": [
+            "DEBUG_TRACE_EXECUTION",
+            "DEBUG_ALLOCATIONS"
+        ]
+    },
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${myIncludePath}"
+            ],
+            "defines": [
+                "${myDefines}"
+            ],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang",
+            "cStandard": "c99",
+            "intelliSenseMode": "macos-clang-arm64"
+        }
+    ],
+    "version": 4
+}

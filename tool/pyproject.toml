@@ -1,0 +1,10 @@
+[tool.mypy]
+files = [
+    "tool/src",
+]
+
+[tool.ruff]
+line-length = 100
+files = [
+    "tool/src",
+]

@@ -1,0 +1,15 @@
+lox.toml
+
+.cache
+compile_commands.txt
+build/**/*
+
+
+**/*.egg-info
+**/__pycache__/
+.venv
+.mypy_cache
+.pdb-pyhist
+
+
+hack

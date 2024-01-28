@@ -1,0 +1,57 @@
+{
+    "configurations": [
+        {
+            "name": "(lldb) clox interpreter",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/clox",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/clox",
+            "args": [
+                "--debug",
+            ],
+        },
+        {
+            "name": "(lldb) clox run file",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/clox",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/clox",
+            "args": [
+                "--debug",
+                "${input:inputFile}",
+            ],
+        },
+        {
+            "name": "(lldb) Debug Unit Test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${input:unitTestFile}.out",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/${input:unitTestFile}.out",
+            "stopOnEntry": false,
+        },
+        {
+            "name": "(lldb) Debug [test_scanner]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_scanner.out",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/test_scanner.out",
+            "stopOnEntry": false,
+        },
+    ],
+    "inputs": [
+        {
+            "id": "unitTestFile",
+            "type": "promptString",
+            "description": "Specify unit test file",
+        },
+        {
+            "id": "inputFile",
+            "type": "promptString",
+            "description": "Specify input file",
+        },
+    ]
+}

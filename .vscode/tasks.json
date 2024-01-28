@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "(make) All",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "all",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+        },
+        {
+            "label": "(make) Unit Test",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "build/$(input:unitTestFile).out"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+        }
+    ],
+    "inputs": [
+        {
+            "id": "unitTestFile",
+            "type": "promptString",
+            "description": "Please enter the name of the unit test file",
+            "default": "${fileBasename}",
+        }
+    ]
+}

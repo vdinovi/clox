@@ -1,0 +1,33 @@
+CompileFlags:
+  Add:
+    - -Wall
+    - -Wextra
+    - -Isrc
+    - -DDEBUG_TRACE_EXECUTION
+
+CompileDatabase:
+  Import:
+    - ./
+
+Index:
+  Background: Build
+
+# Optional: set the resource directory for clangd
+# You may need to adjust this path depending on your system
+ResourceDir: /usr/bin/clang
+
+Diagnostics:
+  ClangTidy:
+    Add: []
+
+Completion:
+  AllScopes: true
+  FilterAndSort: true
+  IncludeFixer: true
+  LimitResults: 100
+
+Format:
+  Enable: true
+
+Hover:
+  ShowComments: true
