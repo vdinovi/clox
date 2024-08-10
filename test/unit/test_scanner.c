@@ -8,7 +8,6 @@
 #include "scanner.h"
 
 Allocator alloc;
-char message[4096];
 
 #define TOKEN(_type, _start, _length, _line) (Token) { \
     .type = (_type), .start = (_start), .length = (_length), .line = (_line) \
@@ -18,7 +17,7 @@ char message[4096];
     .type = TOKEN_EOF, .start = NULL, .length = 0, .line = (_line) \
 }
 
-#define TEST_ASSERT_EQUAL_TOKEN(source, expected, actual) assert_token_equal(&alloc, message, (source), (expected), (actual))
+#define TEST_ASSERT_EQUAL_TOKEN(source, expected, actual) assert_token_equal(&alloc, (source), (expected), (actual))
 
 void setUp(void) {
     allocator_init(&alloc);

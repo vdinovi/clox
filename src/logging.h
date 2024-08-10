@@ -11,7 +11,7 @@ typedef struct LogEvent {
     const char *file;
     struct tm time;
     int time_ms;
-    void *udata;
+    void *stream;
     int line;
     int level;
 } LogEvent;
@@ -34,13 +34,19 @@ static const char *LOG_LEVEL_NAMES[] = {
     "ERROR",
 };
 
-void set_log_level(int level);
-void logger(int level, const char *file, int line, const char *fmt, ...);
+void set_log_level(LogLevel level);
+LogLevel current_log_level();
+void set_log_stream(FILE *file);
+void logger(LogLevel level, const char *file, int line, const char *fmt, ...);
 
 #define log_trace(...) logger(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define log_debug(...) logger(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
 #define log_info(...) logger(LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define log_warn(...) logger(LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define log_error(...) logger(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+
+static inline const char* log_level_name(int level) {
+    return LOG_LEVEL_NAMES[level];
+}
 
 #endif

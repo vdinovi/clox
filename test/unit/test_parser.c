@@ -7,7 +7,6 @@
 #include "parser.h"
 
 Allocator alloc;
-char message[4096];
 
 void setUp(void) {
     allocator_init(&alloc);

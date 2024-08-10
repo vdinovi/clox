@@ -6,6 +6,6 @@
 #include "scanner.h"
 
 String* escape_string(Allocator *alloc, const char *source);
-void assert_token_equal(Allocator *alloc, char *message, const char *source, Token *expected, Token *actual);
+void assert_token_equal(Allocator *alloc, const char *source, Token *expected, Token *actual);
 
 #endif

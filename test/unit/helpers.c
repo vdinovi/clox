@@ -54,7 +54,9 @@ String* escape_string(Allocator *alloc, const char *source) {
     return escaped;
 }
 
-void assert_token_equal(Allocator *alloc, char *message, const char *source, Token *expected, Token *actual) {
+void assert_token_equal(Allocator *alloc, const char *source, Token *expected, Token *actual) {
+    static char message[4096];
+
     String *escaped_source = escape_string(alloc, source);
     String *expected_repr = token_repr(expected, alloc);
     String *actual_repr = token_repr(actual, alloc);
