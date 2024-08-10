@@ -3,12 +3,15 @@
 #include "unity.h"
 #include "helpers.h"
 #include "allocator.h"
+#include "logging.h"
 #include "error.h"
 
 Allocator alloc;
+Logger logger;
 
 void setUp(void) {
-    allocator_init(&alloc);
+    allocator_init(&alloc, &logger);
+    logger_init(&logger, stderr, -1, &alloc);
 }
 
 void tearDown(void) {

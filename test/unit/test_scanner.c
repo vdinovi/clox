@@ -5,9 +5,11 @@
 
 #include "helpers.h"
 #include "allocator.h"
+#include "logging.h"
 #include "scanner.h"
 
 Allocator alloc;
+Logger logger;
 
 #define TOKEN(_type, _start, _length, _line) (Token) { \
     .type = (_type), .start = (_start), .length = (_length), .line = (_line) \
@@ -20,10 +22,12 @@ Allocator alloc;
 #define TEST_ASSERT_EQUAL_TOKEN(source, expected, actual) assert_token_equal(&alloc, (source), (expected), (actual))
 
 void setUp(void) {
-    allocator_init(&alloc);
+    allocator_init(&alloc, &logger);
+    logger_init(&logger, stderr, -1, &alloc);
 }
 
 void tearDown(void) {
+    logger_destroy(&logger);
     allocator_destroy(&alloc);
 }
 

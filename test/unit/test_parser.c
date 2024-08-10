@@ -4,15 +4,19 @@
 
 #include "helpers.h"
 #include "allocator.h"
+#include "logging.h"
 #include "parser.h"
 
 Allocator alloc;
+Logger logger;
 
 void setUp(void) {
-    allocator_init(&alloc);
+    allocator_init(&alloc, &logger);
+    logger_init(&logger, stderr, -1, &alloc);
 }
 
 void tearDown(void) {
+    logger_destroy(&logger);
     allocator_destroy(&alloc);
 }
 

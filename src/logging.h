@@ -19,12 +19,15 @@ typedef struct LogEvent {
 typedef void (*LogFn)(LogEvent *ev);
 
 typedef enum LogLevel {
-    LOG_TRACE,
-    LOG_DEBUG,
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR,
+    LOG_LEVEL_TRACE,
+    LOG_LEVEL_DEBUG,
+    LOG_LEVEL_INFO,
+    LOG_LEVEL_WARN,
+    LOG_LEVEL_ERROR,
 } LogLevel;
+
+#define LOG_LEVEL_MIN LOG_LEVEL_TRACE
+#define LOG_LEVEL_MAX LOG_LEVEL_ERROR
 
 static const char *LOG_LEVEL_NAMES[] = {
     "TRACE",
@@ -34,16 +37,23 @@ static const char *LOG_LEVEL_NAMES[] = {
     "ERROR",
 };
 
-void set_log_level(LogLevel level);
-LogLevel current_log_level();
-void set_log_stream(FILE *file);
-void logger(LogLevel level, const char *file, int line, const char *fmt, ...);
+struct Allocator;
 
-#define log_trace(...) logger(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
-#define log_debug(...) logger(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-#define log_info(...) logger(LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
-#define log_warn(...) logger(LOG_WARN, __FILE__, __LINE__, __VA_ARGS__)
-#define log_error(...) logger(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+typedef struct Logger {
+    FILE *stream;
+    LogLevel level;
+    struct Allocator *alloc;
+} Logger;
+
+void logger_init(Logger *logger, FILE *stream, LogLevel level, struct Allocator *alloc);
+void logger_destroy(Logger *logger);
+void logger_emit(Logger *logger, LogLevel level, const char *file, int line, const char *fmt, ...);
+
+#define TRACE(logger, ...) logger_emit((logger), LOG_LEVEL_TRACE, __FILE__, __LINE__, __VA_ARGS__)
+#define DEBUG(logger, ...) logger_emit((logger), LOG_LEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+#define INFO(logger, ...) logger_emit((logger), LOG_LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#define WARN(logger, ...) logger_emit((logger), LOG_LEVEL_WARN, __FILE__, __LINE__, __VA_ARGS__)
+#define ERROR(logger, ...) logger_emit((logger), LOG_LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 
 static inline const char* log_level_name(int level) {
     return LOG_LEVEL_NAMES[level];

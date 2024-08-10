@@ -9,6 +9,8 @@
 #include "assert.h"
 
 Allocator alloc;
+Logger alloc_logger;
+Logger logger;
 
 static struct {
     FILE *file;
@@ -25,22 +27,26 @@ static String* next_log() {
     for (char *ch = start; ch != end; ch++) {
         string->data[string->length++] = *ch;
     }
-    outstream.line = end + 1;
+    outstream.line = end;
     return string;
 }
 
 void setUp(void) {
-    allocator_init(&alloc);
+    allocator_init(&alloc, &alloc_logger);
+    logger_init(&alloc_logger, stderr, -1, &alloc);
+
     outstream.file = open_memstream(&outstream.buffer, &outstream.size);
     TEST_ASSERT_NOT_NULL(outstream.file);
     TEST_ASSERT_NOT_NULL(outstream.buffer);
-    set_log_stream(outstream.file);
+    logger_init(&logger, outstream.file, LOG_LEVEL_INFO, &alloc);
     outstream.line = outstream.buffer;
-    set_log_level(LOG_INFO);
 }
 
 void tearDown(void) {
+    logger_destroy(&alloc_logger);
     allocator_destroy(&alloc);
+
+    logger_destroy(&logger);
     fclose(outstream.file);
     free(outstream.buffer);
 }
@@ -101,11 +107,9 @@ static void assert_log_string(const char *log, const char *message, LogLevel lev
 
 void test_logger(void) {
     static char message[4096];
-
-    for (LogLevel level = LOG_TRACE; level <= LOG_ERROR; level++) {
-        if (level < current_log_level()) continue;
-        set_log_level(level);
-        logger(level, FILE, LINE, FMT, ARGS);
+    
+    for (LogLevel level = LOG_LEVEL_MIN; level <= LOG_LEVEL_MAX; level++) {
+        logger_emit(&logger, level, FILE, LINE, FMT, ARGS);
         outstream.line = outstream.buffer;
         String *log = next_log();
         TEST_ASSERT_NOT_NULL(log->data);

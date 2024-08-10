@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "common.h"
 #include "allocator.h"
 #include "assert.h"
 #include "logging.h"
@@ -14,7 +15,7 @@
 static void arena_init(Arena *arena, size_t capacity);
 static void arena_destroy(Arena *arena);
 static void* arena_alloc(Allocator *alloc, size_t size);
-static ArenaChunk* chunk_create(size_t size);
+static ArenaChunk* chunk_create(Logger *logger, size_t size);
 static FreeListNode* freelist_node_alloc(Allocator *alloc, size_t capacity);
 static void* freelist_alloc(Allocator *alloc, size_t size);
 static void freelist_free(Allocator *alloc, void *data, size_t size);
@@ -23,9 +24,10 @@ static void freelist_free(Allocator *alloc, void *data, size_t size);
 
 #pragma region Public
 
-void allocator_init(Allocator *alloc) {
+void allocator_init(Allocator *alloc, Logger *logger) {
     alloc->freelist = NULL;
     arena_init(&alloc->arena, DEFAULT_ARENA_CHUNK_CAPACITY);
+    alloc->logger = logger;
 }
 
 void allocator_destroy(Allocator *alloc) {
@@ -35,7 +37,7 @@ void allocator_destroy(Allocator *alloc) {
 void* allocator_alloc(Allocator *alloc, size_t size) {
     void *data = freelist_alloc(alloc, size);
     if (data != NULL) {
-        log_debug("Allocator(%p).freelist_alloc(%zu) from %p", alloc, size, data);
+        DEBUG(alloc->logger, "Allocator(%p).freelist_alloc(%zu) from %p", alloc, size, data);
         return data;
     } 
     return arena_alloc(alloc, size);
@@ -46,7 +48,7 @@ void allocator_free(Allocator *alloc, void *data, size_t size) {
 }
 
 void* allocator_realloc(Allocator *alloc, void *data, size_t size, size_t new_size) {
-    log_trace("allocator_realloc(alloc=%p, data=%p, size=%zu, new_size=%zu)", alloc, data, size, new_size);
+    TRACE(alloc->logger, "allocator_realloc(alloc=%p, data=%p, size=%zu, new_size=%zu)", alloc, data, size, new_size);
     uint8_t *target = (uint8_t*)allocator_alloc(alloc, new_size);
     uint8_t *source = (uint8_t*)data;
     for (size_t i = 0; i < size; i++) target[i] = source[i];
@@ -55,7 +57,7 @@ void* allocator_realloc(Allocator *alloc, void *data, size_t size, size_t new_si
 }
 
 void* allocator_memcopy(Allocator *alloc, void *data, size_t size) {
-    log_trace("allocator_memcopy(alloc=%p, data=%p, size=%zu)", alloc, data, size);
+    TRACE(alloc->logger, "allocator_memcopy(alloc=%p, data=%p, size=%zu)", alloc, data, size);
     uint8_t *target = (uint8_t*)allocator_alloc(alloc, size);
     uint8_t *source = (uint8_t*)data;
     for (size_t i = 0; i < size; i++) target[i] = source[i];
@@ -85,7 +87,7 @@ static void arena_destroy(Arena *arena) {
 
 static void* arena_alloc(Allocator *alloc, size_t size) {
     size = aligned_size(size);
-    log_trace("allocator_alloc(alloc=%p, size=%zu)", alloc, size);
+    TRACE(alloc->logger, "allocator_alloc(alloc=%p, size=%zu)", alloc, size);
     Arena *arena = &alloc->arena;
 
     if (arena->end == NULL) {
@@ -93,7 +95,7 @@ static void* arena_alloc(Allocator *alloc, size_t size) {
         Assert(arena->begin == NULL);
         size_t capacity = arena->chunk_capacity;
         if (capacity < size) capacity = size;
-        arena->begin = arena->end = chunk_create(capacity);
+        arena->begin = arena->end = chunk_create(alloc->logger, capacity);
     }
 
     ArenaChunk *chunk = arena->begin;
@@ -107,13 +109,13 @@ static void* arena_alloc(Allocator *alloc, size_t size) {
         Assert(chunk->next == NULL);
         size_t capacity = arena->chunk_capacity;
         if (capacity < size) capacity = size;
-        chunk = arena->end = chunk->next = chunk_create(capacity);
+        chunk = arena->end = chunk->next = chunk_create(alloc->logger, capacity);
     }
 
 #ifdef DEBUG_ALLOCATIONS
     size_t num_chunks = 0;
     for (ArenaChunk *c = arena->begin; c != NULL; c = c->next) num_chunks++;
-    log_debug("Allocator(%p).alloc(%zu) { chunks=%zu }", alloc, size, num_chunks);
+    DEBUG(alloc->logger, "Allocator(%p).alloc(%zu) { chunks=%zu }", alloc, size, num_chunks);
 #endif
 
     // allocate
@@ -122,13 +124,13 @@ static void* arena_alloc(Allocator *alloc, size_t size) {
     return (void*)result;
 }
 
-static ArenaChunk* chunk_create(size_t size) {
+static ArenaChunk* chunk_create(Logger *logger, size_t size) {
     size_t total_size = aligned_size(sizeof(ArenaChunk) + size);
     size_t capacity = total_size - sizeof(ArenaChunk);
-    log_trace("chunk_create(total_size=%zu, capacity=%zu)", total_size, capacity);
+    TRACE(logger, "chunk_create(total_size=%zu, capacity=%zu)", total_size, capacity);
 
 #ifdef DEBUG_ALLOCATIONS
-    log_debug("stdlib.malloc(%zu)", total_size);
+    DEBUG(logger, "stdlib.malloc(%zu)", total_size);
 #endif
 
     ArenaChunk *chunk = (ArenaChunk*)malloc(total_size);
@@ -143,7 +145,7 @@ static ArenaChunk* chunk_create(size_t size) {
 static FreeListNode* freelist_node_alloc(Allocator *alloc, size_t capacity) {
     size_t total_size = aligned_size(sizeof(FreeListNode) + capacity);
     capacity = total_size - sizeof(FreeListNode);
-    log_trace("freelist_node_alloc(total_size=%zu, capacity=%zu)", total_size, capacity);
+    TRACE(alloc->logger, "freelist_node_alloc(total_size=%zu, capacity=%zu)", total_size, capacity);
     FreeListNode *node = (FreeListNode*)arena_alloc(alloc, total_size);
     Assert(node != NULL);
     node->capacity = capacity;
@@ -153,7 +155,7 @@ static FreeListNode* freelist_node_alloc(Allocator *alloc, size_t capacity) {
 }
 
 static void* freelist_alloc(Allocator *alloc, size_t size) {
-    log_trace("freelist_alloc(alloc=%p, size=%zu)", alloc, size);
+    TRACE(alloc->logger, "freelist_alloc(alloc=%p, size=%zu)", alloc, size);
     FreeListNode *iter = alloc->freelist;
     FreeListNode *follower = NULL;
     while (iter != NULL && iter->capacity < size) {
@@ -176,7 +178,7 @@ static void* freelist_alloc(Allocator *alloc, size_t size) {
 }
 
 static void freelist_free(Allocator *alloc, void *data, size_t size) {
-    log_trace("freelist_free(alloc=%p, data=%p, size=%zu)", alloc, data, size);
+    TRACE(alloc->logger, "freelist_free(alloc=%p, data=%p, size=%zu)", alloc, data, size);
     FreeListNode *iter = alloc->freelist;
     while (iter != NULL && iter->next != NULL) iter = iter->next;
 

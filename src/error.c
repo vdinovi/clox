@@ -1,9 +1,9 @@
+#include "common.h"
 #include "error.h"
 #include "logging.h"
 
-
 Error* create_error(Allocator *alloc, int code, const char *reason) {
-    log_debug("create_error(alloc=%p, code=%d, reason=%s)", alloc, code, reason);
+    DEBUG(alloc->logger, "create_error(alloc=%p, code=%d, reason=%s)", alloc, code, reason);
     Error *err = (Error*)allocator_alloc(alloc, sizeof(Error));
     err->code = code;
     err->reason = string_dup_cstr(alloc, reason);

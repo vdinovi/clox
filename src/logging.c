@@ -1,14 +1,16 @@
 #include <time.h>
 #include <sys/time.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdarg.h>
 
 #include "logging.h"
+#include "allocator.h"
 #include "assert.h"
 
 #ifndef DEFAULT_LOG_LEVEL
-// TODO: set to LOG_WARN at some point
-#define DEFAULT_LOG_LEVEL LOG_INFO
+// TODO: set to LOG_LEVEL_WARN at some point
+#define DEFAULT_LOG_LEVEL LOG_LEVEL_INFO
 #endif
 
 #ifndef DEFAULT_LOG_STREAM
@@ -17,43 +19,32 @@
 
 #pragma region Declare
 
-static struct {
-    FILE *stream;
-    LogLevel level;
-} state = {
-    .stream = NULL,
-    .level = DEFAULT_LOG_LEVEL,
-};
-
 static void init_log_event(LogEvent *event, void *stream);
 static void write_log_event(LogEvent *event);
+static inline bool is_valid_log_level(int level);
 
 #pragma endregion
 
 #pragma region Public
 
-void set_log_level(LogLevel level) {
-    state.level = level;
-}
 
-LogLevel current_log_level() {
-    return state.level;
-}
-
-void set_log_stream(FILE *file) {
-    state.stream = file;
-}
-
-void logger(LogLevel level, const char *file, int line, const char *fmt, ...) {
-    LogEvent event = {
-        .fmt = fmt,
-        .file = file,
-        .line = line,
-        .level = level,
+void logger_init(Logger *logger, FILE *stream, LogLevel level, Allocator *alloc) {
+    *logger = (Logger){
+        .stream = stream != NULL ? stream : DEFAULT_LOG_STREAM,
+        .level = is_valid_log_level(level) ? level : DEFAULT_LOG_LEVEL,
+        .alloc = alloc,
     };
+}
 
-    if (level >= state.level) {
-        init_log_event(&event, state.stream != NULL ? state.stream : DEFAULT_LOG_STREAM);
+void logger_destroy(Logger *logger) {
+    (void)logger;
+    // TODO: close file?
+}
+
+void logger_emit(Logger *logger, LogLevel level, const char *file, int line, const char *fmt, ...) {
+    if (level >= logger->level) {
+        LogEvent event = { .fmt = fmt, .file = file, .line = line, .level = level };
+        init_log_event(&event, logger->stream != NULL ? logger->stream : DEFAULT_LOG_STREAM);
         va_start(event.ap, fmt);
         write_log_event(&event);
         va_end(event.ap);
@@ -81,6 +72,10 @@ static void write_log_event(LogEvent *event) {
     vfprintf(event->stream, event->fmt, event->ap);
     fprintf(event->stream, "\n");
     fflush(event->stream);
+}
+
+static inline bool is_valid_log_level(int level) {
+    return level >= LOG_LEVEL_MIN && level <= LOG_LEVEL_MAX;
 }
 
 #pragma endregion

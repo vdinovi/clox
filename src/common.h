@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "program.h"
+
 #define EXIT_COMPILE_ERROR 65
 #define EXIT_RUNTIME_ERROR 70
 

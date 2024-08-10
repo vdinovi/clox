@@ -26,12 +26,15 @@ typedef struct FreeListNode {
     uint8_t *data;
 } FreeListNode;
 
+struct Logger;
+
 typedef struct Allocator {
     Arena arena;
     FreeListNode *freelist;
+    struct Logger *logger;
 } Allocator;
 
-void allocator_init(Allocator *alloc);
+void allocator_init(Allocator *alloc, struct Logger *logger);
 void allocator_destroy(Allocator *alloc);
 void* allocator_alloc(Allocator *alloc, size_t size);
 void allocator_free(Allocator *alloc, void *data, size_t size);
