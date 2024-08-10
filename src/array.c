@@ -3,6 +3,9 @@
 #include "array.h"
 
 #pragma region Declare
+
+static String* empty_string(Allocator *alloc);
+
 #pragma endregion
 
 #pragma region Public
@@ -31,9 +34,13 @@ String *string_alloc(Allocator *alloc, size_t capacity) {
     return string;
 }
 
+
+
 String* string_dup_cstr(Allocator *alloc, const char *source) {
     int length = strlen(source);
-    Assert(length > 0);
+    if (length == 0) {
+        return empty_string(alloc);
+    }
     uint8_t *data = (uint8_t*)allocator_alloc(alloc, sizeof(String) + length + 1);
     String *string = (String*)data;
     string->length = length;
@@ -44,7 +51,11 @@ String* string_dup_cstr(Allocator *alloc, const char *source) {
     return string;
 }
 
+
 String* string_dup(Allocator *alloc, String *source) {
+    if (source->length == 0) {
+        return empty_string(alloc);
+    }
     uint8_t *data = (uint8_t*)allocator_alloc(alloc, sizeof(String) + source->length + 1);
     String *string = (String*)data;
     string->length = source->length;
@@ -79,4 +90,13 @@ String* string_sprintf(Allocator *alloc, const char *format, ...) {
 #pragma endregion
 
 #pragma region Private
+
+// TODO: could be optimized by returning the same instance but I worry about mutability
+static String* empty_string(Allocator *alloc) {
+    String *string = (String*)allocator_alloc(alloc, sizeof(String));
+    string->data = "";
+    string->length = 0;
+    return string;
+}
+
 #pragma endregion
