@@ -9,6 +9,6 @@ typedef enum CompileResult {
     COMPILE_PARSE_ERROR,
 } CompileResult;
 
-CompileResult compile(Allocator *alloc, const char* source);
+CompileResult compile(Allocator *alloc, const char *source);
 
 #endif

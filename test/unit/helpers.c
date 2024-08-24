@@ -1,4 +1,7 @@
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "helpers.h"
 #include "unity.h"
@@ -8,10 +11,22 @@
 
 #pragma region Public
 
-String* escape_string(Allocator *alloc, const char *source) {
+void setup(T *t) {
+    srand(t->seed != 0 ? t->seed : time(NULL));
+    logger_init(&t->log, t->log_stream != NULL ? t->log_stream : stderr,
+                t->log_level > _LOG_LEVEL_MINIMUM ? t->log_level : LOG_LEVEL_TRACE);
+    allocator_init(&t->alloc, &t->log);
+}
+
+void teardown(T *t) {
+    allocator_destroy(&t->alloc);
+    logger_destroy(&t->log);
+}
+
+String *escape_string(T *t, const char *source) {
     int length = 0;
     for (int i = 0; source[i] != '\0'; i++) {
-        switch(source[i]) {
+        switch (source[i]) {
         case '\n':
         case '\t':
         case '\\':
@@ -23,9 +38,9 @@ String* escape_string(Allocator *alloc, const char *source) {
             length++;
         }
     }
-    String* escaped = (String*)string_alloc(alloc, length + 1);
+    String *escaped = (String *)string_alloc(&t->alloc, length + 1);
     for (int i = 0; source[i] != '\0'; i++) {
-        switch(source[i]) {
+        switch (source[i]) {
         case '\n':
             escaped->data[escaped->length++] = '\\';
             escaped->data[escaped->length++] = 'n';
@@ -54,30 +69,12 @@ String* escape_string(Allocator *alloc, const char *source) {
     return escaped;
 }
 
-void assert_token_equal(Allocator *alloc, const char *source, Token *expected, Token *actual) {
-    static char message[4096];
-
-    String *escaped_source = escape_string(alloc, source);
-    String *expected_repr = token_repr(expected, alloc);
-    String *actual_repr = token_repr(actual, alloc);
-    sprintf(message, 
-        "[%.*s], expected=%.*s, actual=%.*s", 
-        (int)escaped_source->length, escaped_source->data, 
-        (int)expected_repr->length, expected_repr->data, 
-        (int)actual_repr->length, actual_repr->data); 
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(expected->type, actual->type, message);
-    if (expected->length == 0) {
-        TEST_ASSERT_NULL_MESSAGE(actual->start, message);
-    } else {
-        TEST_ASSERT_EQUAL_STRING_LEN_MESSAGE(expected->start, actual->start, expected->length, message);
-    }
-    TEST_ASSERT_EQUAL_INT_MESSAGE(expected->length, actual->length, message);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(expected->line, actual->line, message);
+int random_int(int min, int max) {
+    // NOTE: should convert to rand_r for multithreaded testing.
+    return min + rand() % (max - min + 1);
 }
 
 #pragma endregion
 
 #pragma region Private
 #pragma endregion
-

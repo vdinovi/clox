@@ -18,4 +18,3 @@ void parser_init(Parser *parser, Allocator *alloc, Scanner *scanner) {
 
 #pragma region Private
 #pragma endregion
-

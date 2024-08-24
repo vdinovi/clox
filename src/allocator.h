@@ -36,10 +36,10 @@ typedef struct Allocator {
 
 void allocator_init(Allocator *alloc, struct Logger *logger);
 void allocator_destroy(Allocator *alloc);
-void* allocator_alloc(Allocator *alloc, size_t size);
+void *allocator_alloc(Allocator *alloc, size_t size);
 void allocator_free(Allocator *alloc, void *data, size_t size);
-void* allocator_realloc(Allocator *alloc, void *data, size_t size, size_t new_size);
-void* allocator_memcopy(Allocator *alloc, void *data, size_t size);
+void *allocator_realloc(Allocator *alloc, void *data, size_t size, size_t new_size);
+void *allocator_memcopy(Allocator *alloc, void *data, size_t size);
 
 static inline size_t aligned_size(size_t size) {
     return (size + ALIGNMENT - 1) & ~(ALIGNMENT - 1);

@@ -1,8 +1,8 @@
 #ifndef clox_vm_h
 #define clox_vm_h
 
-#include "assert.h"
 #include "allocator.h"
+#include "assert.h"
 #include "common.h"
 #include "opcode.h"
 
@@ -27,7 +27,7 @@ typedef enum InterpretResult {
 } InterpretResult;
 
 void virtual_machine_init(VirtualMachine *vm, Allocator *alloc);
-InterpretResult interpret(VirtualMachine *vm, const char* source);
+InterpretResult interpret(VirtualMachine *vm, const char *source);
 
 static inline const char *InterpretResult_name(InterpretResult result) {
     switch (result) {

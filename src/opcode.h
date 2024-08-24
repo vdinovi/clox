@@ -4,8 +4,8 @@
 #include <stdio.h>
 
 #include "assert.h"
-#include "vector.h"
 #include "common.h"
+#include "vector.h"
 
 #define DEFAULT_LINE_NUMBER_ARRAY_CAPACITY 32
 #define DEFAULT_CONSTANTS_ARRAY_CAPACITY 32
@@ -44,7 +44,6 @@ typedef double Value;
 typedef struct ValueArray {
     Vector values;
 } ValueArray;
-
 
 typedef struct LineNumberEncoding {
     int line;       // the line number

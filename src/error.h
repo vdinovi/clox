@@ -9,7 +9,7 @@ typedef struct Error {
     String *reason;
 } Error;
 
-Error* create_error(Allocator *alloc, int code, const char *reason);
-String* error_repr(Error *error, Allocator *alloc);
+Error *create_error(Allocator *alloc, int code, const char *reason);
+String *error_repr(Error *error, Allocator *alloc);
 
 #endif

@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "vm.h"
 #include "compiler.h"
+#include "vm.h"
 
 #pragma region Declare
 
@@ -15,7 +15,7 @@ static InterpretResult virtual_machine_exec(VirtualMachine *vm);
 
 #pragma region Public
 
-InterpretResult interpret(VirtualMachine *vm, const char* source) {
+InterpretResult interpret(VirtualMachine *vm, const char *source) {
     InterpretResult result = INTERPRET_OK;
 
     OpCodeChunk chunk;
@@ -71,11 +71,11 @@ static InterpretResult virtual_machine_exec(VirtualMachine *vm) {
 #define READ_BYTE() (*vm->ip++)
 #define READ_CONSTANT(index) (((Value *)vm->chunk->constants.values.data)[(index)])
 #define OFFSET() ((int)(vm->ip - vm->chunk->codes.codes.data->data))
-#define BINARY_OP(op) \
-    do { \
-        Value right = stack_pop(&vm->stack); \
-        Value left = stack_pop(&vm->stack); \
-        stack_push(&vm->stack, left op right); \
+#define BINARY_OP(op)                                                                              \
+    do {                                                                                           \
+        Value right = stack_pop(&vm->stack);                                                       \
+        Value left = stack_pop(&vm->stack);                                                        \
+        stack_push(&vm->stack, left op right);                                                     \
     } while (false)
 
     for (;;) {
@@ -97,18 +97,27 @@ static InterpretResult virtual_machine_exec(VirtualMachine *vm) {
             stack_push(&vm->stack, constant);
             break;
         }
-        case OP_ADD: BINARY_OP(+); break;
-        case OP_SUBTRACT: BINARY_OP(-); break;
-        case OP_MULTIPLY: BINARY_OP(*); break;
-        case OP_DIVIDE: BINARY_OP(/); break;
-        case OP_NEGATE: stack_push(&vm->stack, -stack_pop(&vm->stack)); break;
+        case OP_ADD:
+            BINARY_OP(+);
+            break;
+        case OP_SUBTRACT:
+            BINARY_OP(-);
+            break;
+        case OP_MULTIPLY:
+            BINARY_OP(*);
+            break;
+        case OP_DIVIDE:
+            BINARY_OP(/);
+            break;
+        case OP_NEGATE:
+            stack_push(&vm->stack, -stack_pop(&vm->stack));
+            break;
         case OP_RETURN: {
             Value value = stack_pop(&vm->stack);
             value_write_repr(&value, stderr);
             fputc('\n', stderr);
             return INTERPRET_OK;
         }
-            
         }
     }
 

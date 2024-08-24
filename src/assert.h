@@ -1,8 +1,8 @@
 #ifndef clox_assert_h
 #define clox_assert_h
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define Assert(cond)                                                                               \
     do {                                                                                           \

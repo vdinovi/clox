@@ -4,7 +4,7 @@
 
 #pragma region Declare
 
-Program program = {0};
+Program program = { 0 };
 
 #pragma endregion
 
@@ -12,7 +12,7 @@ Program program = {0};
 
 void program_init(Program *program, int log_level, FILE *log_stream) {
     allocator_init(&program->alloc, &program->logger);
-    logger_init(&program->logger, log_stream, log_level, &program->alloc);
+    logger_init(&program->logger, log_stream, log_level);
     program->initialized = true;
 }
 
@@ -28,4 +28,3 @@ void program_destroy(Program *program) {
 
 #pragma region Private
 #pragma endregion
-

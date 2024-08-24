@@ -1,8 +1,8 @@
 #include <stdint.h>
 
-#include "opcode.h"
 #include "allocator.h"
 #include "assert.h"
+#include "opcode.h"
 
 #ifndef UINT24_MAX
 #define UINT24_MAX 16777215
@@ -34,7 +34,7 @@ int value_write(ValueArray *array, Value value) {
 }
 
 Value *value_at(ValueArray *array, int index) {
-    Value *ptr = (Value*)vector_at(&array->values, index);
+    Value *ptr = (Value *)vector_at(&array->values, index);
     Assert(ptr != NULL);
     return ptr;
 }
@@ -71,7 +71,7 @@ void opcode_chunk_init(OpCodeChunk *chunk, Allocator *alloc) {
     vector_init(&chunk->lines.encodings, alloc, DEFAULT_OPCODE_CAPACITY, sizeof(uint8_t));
     vector_init(&chunk->constants.values, alloc, DEFAULT_VALUE_CAPACITY, sizeof(Value));
     // Lazy initialize long_constants since its unlikely to be used
-    chunk->long_constants = (ValueArray){0};
+    chunk->long_constants = (ValueArray){ 0 };
 }
 
 int OpCodeChunk_write_code(OpCodeChunk *chunk, uint8_t code, int line) {
@@ -91,7 +91,8 @@ int OpCodeChunk_write_constant(OpCodeChunk *chunk, Value value, int line) {
         // Use OP_CONSTANT_LONG when the constant pool is large
         if (chunk->long_constants.values.data == NULL) {
             // Lazy initialize long_constants since its unlikely to be used
-            vector_init(&chunk->long_constants.values, chunk->alloc, DEFAULT_VALUE_CAPACITY, sizeof(Value));
+            vector_init(&chunk->long_constants.values, chunk->alloc, DEFAULT_VALUE_CAPACITY,
+                        sizeof(Value));
         }
         int offset = value_write(&chunk->constants, value);
         uint8_t code[4] = {
@@ -166,19 +167,17 @@ static int line_number_for(OpCodeChunk *chunk, int offset) {
     Unreachable();
 }
 
-static inline int simple_instruction(OpCodeChunk *chunk, FILE *out, OpCode code,
-                                                 int offset) {
+static inline int simple_instruction(OpCodeChunk *chunk, FILE *out, OpCode code, int offset) {
     (void)chunk;
     fprintf(out, "%s", opcode_name(code));
     return offset + 1;
 }
 
 static inline int constant_instruction(OpCodeChunk *chunk, FILE *out, OpCode code, int offset) {
-    uint32_t index = code == OP_CONSTANT_LONG ? 
-        *opcode_at(&chunk->codes, offset + 1) << 16
-        | *opcode_at(&chunk->codes, offset + 2) << 8
-        | *opcode_at(&chunk->codes, offset + 3) :
-        *opcode_at(&chunk->codes, offset + 1);
+    uint32_t index = code == OP_CONSTANT_LONG ? *opcode_at(&chunk->codes, offset + 1) << 16
+                                                    | *opcode_at(&chunk->codes, offset + 2) << 8
+                                                    | *opcode_at(&chunk->codes, offset + 3)
+                                              : *opcode_at(&chunk->codes, offset + 1);
     fprintf(out, "%-16s %4d ", opcode_name(code), index);
     Value value = *value_at(&chunk->constants, index);
     value_write_repr(&value, out);

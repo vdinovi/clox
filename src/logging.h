@@ -1,8 +1,8 @@
 #ifndef clox_logging_h
 #define clox_logging_h
 
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <time.h>
 
 typedef struct LogEvent {
@@ -19,22 +19,20 @@ typedef struct LogEvent {
 typedef void (*LogFn)(LogEvent *ev);
 
 typedef enum LogLevel {
+    _LOG_LEVEL_MINIMUM, // do not use
     LOG_LEVEL_TRACE,
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_INFO,
     LOG_LEVEL_WARN,
     LOG_LEVEL_ERROR,
+    _LOG_LEVEL_MAXIMUM, // do not use
 } LogLevel;
 
 #define LOG_LEVEL_MIN LOG_LEVEL_TRACE
 #define LOG_LEVEL_MAX LOG_LEVEL_ERROR
 
 static const char *LOG_LEVEL_NAMES[] = {
-    "TRACE",
-    "DEBUG",
-    "INFO",
-    "WARN",
-    "ERROR",
+    "_MINIMUM", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "_MAXIMUM",
 };
 
 struct Allocator;
@@ -42,10 +40,10 @@ struct Allocator;
 typedef struct Logger {
     FILE *stream;
     LogLevel level;
-    struct Allocator *alloc;
+    struct Allocator alloc;
 } Logger;
 
-void logger_init(Logger *logger, FILE *stream, LogLevel level, struct Allocator *alloc);
+void logger_init(Logger *logger, FILE *stream, LogLevel level);
 void logger_destroy(Logger *logger);
 void logger_emit(Logger *logger, LogLevel level, const char *file, int line, const char *fmt, ...);
 
@@ -54,9 +52,5 @@ void logger_emit(Logger *logger, LogLevel level, const char *file, int line, con
 #define INFO(logger, ...) logger_emit((logger), LOG_LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define WARN(logger, ...) logger_emit((logger), LOG_LEVEL_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define ERROR(logger, ...) logger_emit((logger), LOG_LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
-
-static inline const char* log_level_name(int level) {
-    return LOG_LEVEL_NAMES[level];
-}
 
 #endif

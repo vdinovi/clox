@@ -35,7 +35,7 @@ WARNINGS := -Wall -Wextra
 ASAN := -fsanitize=address -fno-omit-frame-pointer
 LOG_DEBUG := -g -DDEBUG_TRACE_EXECUTION -DDEBUG_ALLOCATIONS -DDEFAULT_LOG_LEVEL=LOG_LEVEL_DEBUG
 INCLUDES := -I$(SOURCE_PATH) -I/opt/homebrew/opt/llvm/include
-COMPILE_FLAGS := $(INCLUDES) $(WARNINGS) $(LOG_DEBUG) 
+COMPILE_FLAGS := $(INCLUDES) $(WARNINGS) $(LOG_DEBUG) -g
 UNIT_TEST_COMPILE_FLAGS := $(COMPILE_FLAGS) -I$(UNIT_TEST_PATH)/include -I$(UNITY_PATH) -DTEST
 DEPENDS_FLAGS = -MT $@ -MMD -MP -MF $(BUILD_DEPENDS_PATH)/$*.d
 LINK_FLAGS :=
@@ -85,11 +85,11 @@ clean:
 
 $(BUILD_PATH)/clox: $(OBJECTS) | $(BUILD_PATH)
 	@echo "=> Building target ($@)"
-	$(COMPILE) $(LINK_FLAGS) -o $@ $^
+	$(LINK) $(LINK_FLAGS) -o $@ $^
 
 $(BUILD_PATH)/test_%.out: $(BUILD_OBJECTS_PATH)/test_%.o $(BUILD_OBJECTS_PATH)/helpers.o  $(UNITY_OBJECTS) $(filter-out $(BUILD_OBJECTS_PATH)/main.o,$(OBJECTS)) | $(BUILD_OBJECTS_PATH) $(BUILD_PATH)
 	@echo "=> Building test target ($@)"
-	$(LINK) -I$(UNITY_PATH) -DTEST -o $@ $^
+	$(LINK) $(LINK_FLAGS) -o $@ $^
 
 $(BUILD_OBJECTS_PATH)/%.o:: $(SOURCE_PATH)/%.c | $(BUILD_OBJECTS_PATH) $(BUILD_DEPENDS_PATH)
 	$(COMPILE) -c $(COMPILE_FLAGS) $(DEPENDS_FLAGS) -o $@ $<

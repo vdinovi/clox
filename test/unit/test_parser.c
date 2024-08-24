@@ -2,22 +2,19 @@
 
 #include "unity.h"
 
-#include "helpers.h"
 #include "allocator.h"
+#include "helpers.h"
 #include "logging.h"
 #include "parser.h"
 
-Allocator alloc;
-Logger logger;
+static T t;
 
 void setUp(void) {
-    allocator_init(&alloc, &logger);
-    logger_init(&logger, stderr, -1, &alloc);
+    setup(&t);
 }
 
 void tearDown(void) {
-    logger_destroy(&logger);
-    allocator_destroy(&alloc);
+    teardown(&t);
 }
 
 void test_parse(void) {
@@ -33,8 +30,8 @@ void test_parse(void) {
     for (int test = 0; test < num_test_cases; test++) {
         const char *source = test_cases[test].source;
 
-        scanner_init(&scanner, &alloc, source);
-        parser_init(&parser, &alloc, &scanner);
+        scanner_init(&scanner, &t.alloc, source);
+        parser_init(&parser, &t.alloc, &scanner);
 
         // TODO
 

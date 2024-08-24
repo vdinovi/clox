@@ -24,17 +24,17 @@ void vector_destroy(Vector *vec) {
     vec->count = 0;
 }
 
-void* vector_append(Vector *vec, void *data) {
+void *vector_append(Vector *vec, void *data) {
     return vector_extend(vec, data, 1);
 }
 
-void* vector_extend(Vector *vec, void *data, size_t count) {
+void *vector_extend(Vector *vec, void *data, size_t count) {
     if (vec->count + count > vec->data->length) {
         vec_realloc(vec, vec->count * GROWTH_FACTOR);
     }
     Assert(vec->count + count <= vec->data->length);
     Array source = {
-        .data = (uint8_t*)data,
+        .data = (uint8_t *)data,
         .unit_size = vec->data->unit_size,
         .length = count,
     };
@@ -43,7 +43,7 @@ void* vector_extend(Vector *vec, void *data, size_t count) {
         target[i] = source.data[i];
     }
     vec->count += count;
-    return (void*)target;
+    return (void *)target;
 }
 
 #pragma endregion

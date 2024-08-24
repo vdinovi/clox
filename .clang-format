@@ -20,11 +20,11 @@ BraceWrapping:
   SplitEmptyFunction: true
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
+  AfterCaseLabel: false
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
 AllowShortFunctionsOnASingleLine: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 SpaceBeforeParens: ControlStatements
 BreakBeforeBraces: Custom
-BraceWrapping:
-  AfterCaseLabel: false
-  BeforeCaseLabel: false

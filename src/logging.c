@@ -1,12 +1,12 @@
-#include <time.h>
-#include <sys/time.h>
-#include <stdio.h>
-#include <stdbool.h>
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <time.h>
 
-#include "logging.h"
 #include "allocator.h"
 #include "assert.h"
+#include "logging.h"
 
 #ifndef DEFAULT_LOG_LEVEL
 // TODO: set to LOG_LEVEL_WARN at some point
@@ -27,17 +27,17 @@ static inline bool is_valid_log_level(int level);
 
 #pragma region Public
 
-
-void logger_init(Logger *logger, FILE *stream, LogLevel level, Allocator *alloc) {
+void logger_init(Logger *logger, FILE *stream, LogLevel level) {
     *logger = (Logger){
         .stream = stream != NULL ? stream : DEFAULT_LOG_STREAM,
         .level = is_valid_log_level(level) ? level : DEFAULT_LOG_LEVEL,
-        .alloc = alloc,
+        .alloc = { 0 },
     };
+    allocator_init(&logger->alloc, logger);
 }
 
 void logger_destroy(Logger *logger) {
-    (void)logger;
+    allocator_destroy(&logger->alloc);
     // TODO: close file?
 }
 
@@ -56,7 +56,7 @@ void logger_emit(Logger *logger, LogLevel level, const char *file, int line, con
 #pragma region Private
 
 static void init_log_event(LogEvent *event, void *stream) {
-    struct timeval tv = {0};
+    struct timeval tv = { 0 };
     Assert(gettimeofday(&tv, NULL) == 0);
     Assert(localtime_r(&tv.tv_sec, &event->time) != NULL);
     event->time_ms = tv.tv_usec / 1000;
@@ -68,7 +68,8 @@ static void write_log_event(LogEvent *event) {
     size_t len = strftime(buf, sizeof(buf) - 1, "%H:%M:%S", &event->time);
     len += snprintf(buf + len, sizeof(buf) - len, ".%03d", event->time_ms);
     buf[len] = '\0';
-    fprintf(event->stream, "%s %-5s %s:%d: ", buf, log_level_name(event->level), event->file, event->line);
+    fprintf(event->stream, "%s %-5s %s:%d: ", buf, LOG_LEVEL_NAMES[event->level], event->file,
+            event->line);
     vfprintf(event->stream, event->fmt, event->ap);
     fprintf(event->stream, "\n");
     fflush(event->stream);
@@ -79,4 +80,3 @@ static inline bool is_valid_log_level(int level) {
 }
 
 #pragma endregion
-

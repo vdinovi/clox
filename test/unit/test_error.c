@@ -1,21 +1,19 @@
 #include <stdio.h>
 
-#include "unity.h"
-#include "helpers.h"
 #include "allocator.h"
-#include "logging.h"
 #include "error.h"
+#include "helpers.h"
+#include "logging.h"
+#include "unity.h"
 
-Allocator alloc;
-Logger logger;
+static T t;
 
 void setUp(void) {
-    allocator_init(&alloc, &logger);
-    logger_init(&logger, stderr, -1, &alloc);
+    setup(&t);
 }
 
 void tearDown(void) {
-    allocator_destroy(&alloc);
+    teardown(&t);
 }
 
 void test_error(void) {
@@ -32,14 +30,14 @@ void test_error(void) {
     for (int test = 0; test < num_test_cases; test++) {
         int code = test_cases[test].code;
         const char *reason = test_cases[test].reason;
-        Error *error = create_error(&alloc, code, reason);
+        Error *error = create_error(&t.alloc, code, reason);
 
         TEST_ASSERT_NOT_NULL(error);
         TEST_ASSERT_EQUAL_INT(code, error->code);
         TEST_ASSERT_EQUAL_STRING(reason, error->reason->data);
 
         sprintf(expected_repr, "Error{code=%d, reason='%s'}", code, reason);
-        String *repr = error_repr(error, &alloc);
+        String *repr = error_repr(error, &t.alloc);
         TEST_ASSERT_EQUAL_STRING(expected_repr, repr->data);
     }
 }

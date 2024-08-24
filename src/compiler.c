@@ -1,10 +1,10 @@
 #include <stdio.h>
 
+#include "array.h"
 #include "common.h"
 #include "compiler.h"
-#include "scanner.h"
 #include "parser.h"
-#include "array.h"
+#include "scanner.h"
 
 #pragma region Declare
 
@@ -17,7 +17,7 @@ static ParseError parse_error(Parser *parser, Token token);
 
 #pragma region Public
 
-CompileResult compile(Allocator *alloc, const char* source) {
+CompileResult compile(Allocator *alloc, const char *source) {
     CompileResult result = COMPILE_OK;
 
     Scanner scanner;
@@ -48,7 +48,8 @@ static void advance(Parser *parser) {
 
     for (;;) {
         parser->current = scanner_scan(parser->scanner);
-        if (parser->current.type != TOKEN_ERROR) break;
+        if (parser->current.type != TOKEN_ERROR)
+            break;
         parser->error = parse_error(parser, parser->current);
     }
 }
@@ -68,11 +69,10 @@ static void consume(Parser *parser, TokenType expected, const char *message) {
 static ParseError parse_error(Parser *parser, Token token) {
     Assert(token.type == TOKEN_ERROR);
     String *error = string_dup_cstr(parser->alloc, token.start);
-    return (ParseError) {
+    return (ParseError){
         .line = token.line,
         .reason = error->data,
     };
 }
-
 
 #pragma endregion

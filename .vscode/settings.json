@@ -32,7 +32,8 @@
         "error.h": "c",
         "allocator.h": "c",
         "string.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "helpers.h": "c"
     },
     "cmake.configureOnOpen": false
 }

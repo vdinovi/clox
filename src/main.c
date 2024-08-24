@@ -1,13 +1,13 @@
-#include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "allocator.h"
 #include "common.h"
-#include "program.h"
 #include "logging.h"
 #include "opcode.h"
-#include "allocator.h"
+#include "program.h"
 #include "vm.h"
 
 #define MAJOR_VERSION 0
@@ -16,17 +16,19 @@
 
 // TODO: figure out whats going on with this
 // #define STRINGIFY(x) #x
-// #define SEMANTIC_VERSION STRINGIFY(MAJOR_VERSION) "."  STRINGIFY(MINOR_VERSION) "." STRINGIFY(PATCH_VERSION)
+// #define SEMANTIC_VERSION STRINGIFY(MAJOR_VERSION) "."  STRINGIFY(MINOR_VERSION) "."
+// STRINGIFY(PATCH_VERSION)
 #define SEMANTIC_VERSION "0.1.0"
 
 #define MAX_INPUT_FILE_BYTES 1024 * 1024
 
 #pragma region Declare
 
-#define EXIT(STATUS) { \
-    teardown(&program); \
-    exit(STATUS); \
-}
+#define EXIT(STATUS)                                                                               \
+    {                                                                                              \
+        teardown(&program);                                                                        \
+        exit(STATUS);                                                                              \
+    }
 
 static struct {
     const char *program;
@@ -48,7 +50,7 @@ static void setup(Program *program);
 static void teardown(Program *program);
 static int start_repl(Program *program);
 static int exec_file(Program *program);
-static const char* read_file(Allocator *alloc, FILE *file, size_t max_bytes);
+static const char *read_file(Allocator *alloc, FILE *file, size_t max_bytes);
 
 #pragma endregion
 
@@ -139,8 +141,10 @@ static void parse(int argc, char *argv[]) {
 
 static void setup(Program *program) {
     int log_level = -1;
-    if (config.trace) log_level = LOG_LEVEL_TRACE;
-    else if (config.debug) log_level = LOG_LEVEL_DEBUG;
+    if (config.trace)
+        log_level = LOG_LEVEL_TRACE;
+    else if (config.debug)
+        log_level = LOG_LEVEL_DEBUG;
     FILE *log_stream = stderr;
     program_init(program, log_level, log_stream);
 }
@@ -157,7 +161,7 @@ static int start_repl(Program *program) {
     virtual_machine_init(&vm, alloc);
     DEBUG(log, "starting (vm=%p)", &vm);
 
-    char line[1024] = {0};
+    char line[1024] = { 0 };
     for (;;) {
         printf("> ");
         if (!fgets(line, sizeof(line), stdin)) {
@@ -180,7 +184,7 @@ static int exec_file(Program *program) {
     Allocator *alloc = &program->alloc;
     Logger *logger = &program->logger;
     int exit_code = EXIT_SUCCESS;
-    VirtualMachine vm = {0};
+    VirtualMachine vm = { 0 };
     virtual_machine_init(&vm, alloc);
     DEBUG(logger, "starting (vm=%p)", &vm);
 
@@ -190,7 +194,7 @@ static int exec_file(Program *program) {
         perror("failed to open input file");
         return EXIT_FAILURE;
     }
-    const char* contents = read_file(alloc, file, MAX_INPUT_FILE_BYTES);
+    const char *contents = read_file(alloc, file, MAX_INPUT_FILE_BYTES);
 
     InterpretResult result = interpret(&vm, contents);
     if (result == INTERPRET_COMPILE_ERROR) {
@@ -213,9 +217,9 @@ cleanup:
     return exit_code;
 }
 
-static const char* read_file(Allocator *alloc, FILE *file, size_t max_bytes) {
+static const char *read_file(Allocator *alloc, FILE *file, size_t max_bytes) {
     size_t cap = 1024;
-    char* buffer = (char*)allocator_alloc(alloc, cap);
+    char *buffer = (char *)allocator_alloc(alloc, cap);
     char *current = buffer;
 
     for (;;) {
@@ -228,7 +232,7 @@ static const char* read_file(Allocator *alloc, FILE *file, size_t max_bytes) {
         if (bytes_read < len) {
             if (feof(file)) {
                 if (available == 0) {
-                    buffer = (char*)allocator_realloc(alloc, buffer, cap, cap + 1);
+                    buffer = (char *)allocator_realloc(alloc, buffer, cap, cap + 1);
                 }
                 buffer[len] = '\0';
                 break;
@@ -243,7 +247,7 @@ static const char* read_file(Allocator *alloc, FILE *file, size_t max_bytes) {
             fprintf(stderr, "Error: input file exceeds maximum size of %zu bytes\n", max_bytes);
             EXIT(EXIT_FAILURE);
         }
-        buffer = (char*)allocator_realloc(alloc, buffer, cap, new_cap);
+        buffer = (char *)allocator_realloc(alloc, buffer, cap, new_cap);
         cap = new_cap;
     }
     return buffer;
