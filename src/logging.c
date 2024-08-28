@@ -28,16 +28,18 @@ static inline bool is_valid_log_level(int level);
 #pragma region Public
 
 void logger_init(Logger *logger, FILE *stream, LogLevel level) {
-    *logger = (Logger){
-        .stream = stream != NULL ? stream : DEFAULT_LOG_STREAM,
-        .level = is_valid_log_level(level) ? level : DEFAULT_LOG_LEVEL,
-        .alloc = { 0 },
-    };
-    allocator_init(&logger->alloc, logger);
+    Allocator *alloc = (Allocator *)malloc(sizeof(Allocator));
+    Assert(alloc != NULL);
+    allocator_init(alloc, logger);
+
+    *logger = (Logger){ .stream = stream != NULL ? stream : DEFAULT_LOG_STREAM,
+                        .level = is_valid_log_level(level) ? level : DEFAULT_LOG_LEVEL,
+                        .alloc = alloc };
 }
 
 void logger_destroy(Logger *logger) {
-    allocator_destroy(&logger->alloc);
+    allocator_destroy(logger->alloc);
+    logger->alloc = NULL;
     // TODO: close file?
 }
 

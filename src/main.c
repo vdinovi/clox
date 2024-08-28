@@ -154,12 +154,10 @@ static void teardown(Program *program) {
 }
 
 static int start_repl(Program *program) {
-    Allocator *alloc = &program->alloc;
-    Logger *log = &program->logger;
     int exit_code = EXIT_SUCCESS;
     VirtualMachine vm;
-    virtual_machine_init(&vm, alloc);
-    DEBUG(log, "starting (vm=%p)", &vm);
+    virtual_machine_init(&vm, program->alloc);
+    DEBUG(program->logger, "starting (vm=%p)", &vm);
 
     char line[1024] = { 0 };
     for (;;) {
@@ -172,7 +170,7 @@ static int start_repl(Program *program) {
 
         InterpretResult result = interpret(&vm, line);
         if (result == INTERPRET_COMPILE_ERROR) {
-            DEBUG(&program->logger, "Compile Error");
+            DEBUG(program->logger, "Compile Error");
             exit_code = EXIT_COMPILE_ERROR;
             break;
         }
@@ -181,12 +179,10 @@ static int start_repl(Program *program) {
 }
 
 static int exec_file(Program *program) {
-    Allocator *alloc = &program->alloc;
-    Logger *logger = &program->logger;
     int exit_code = EXIT_SUCCESS;
     VirtualMachine vm = { 0 };
-    virtual_machine_init(&vm, alloc);
-    DEBUG(logger, "starting (vm=%p)", &vm);
+    virtual_machine_init(&vm, program->alloc);
+    DEBUG(program->logger, "starting (vm=%p)", &vm);
 
     Assert(config.input != NULL);
     FILE *file = fopen(config.input, "r");
@@ -194,17 +190,17 @@ static int exec_file(Program *program) {
         perror("failed to open input file");
         return EXIT_FAILURE;
     }
-    const char *contents = read_file(alloc, file, MAX_INPUT_FILE_BYTES);
+    const char *contents = read_file(program->alloc, file, MAX_INPUT_FILE_BYTES);
 
     InterpretResult result = interpret(&vm, contents);
     if (result == INTERPRET_COMPILE_ERROR) {
-        DEBUG(logger, "Compile Error");
+        DEBUG(program->logger, "Compile Error");
         exit_code = EXIT_COMPILE_ERROR;
         goto cleanup;
     }
 
     if (result == INTERPRET_RUNTIME_ERROR) {
-        DEBUG(logger, "Runtime Error");
+        DEBUG(program->logger, "Runtime Error");
         exit_code = EXIT_RUNTIME_ERROR;
         goto cleanup;
     }

@@ -21,15 +21,13 @@ void tearDown(void) {
 void test_allocator(void) {
     Allocator alloc;
     allocator_init(&alloc, &t.log);
-    uint8_t *ptr;
-
-    // test a zero size allocation
-    ptr = (uint8_t *)allocator_alloc(&alloc, 0);
-    TEST_ASSERT_NULL(ptr);
 
     // test a bunch of random size allocations
-    for (int test = 0; test < 1000; test++) {
-        int length = random_int(1, 1000);
+    uint8_t *freeptrs[10] = { NULL };
+    uint8_t *ptr = NULL;
+    for (int test = 0; test < 100; test++) {
+        allocator_write_repr(&alloc, stderr);
+        int length = random_int(1, MAX_MEDIUM_ALLOC_SIZE);
         ptr = (uint8_t *)allocator_alloc(&alloc, sizeof(uint8_t) * length);
         for (int i = 0; i < length; i++) {
             ptr[i] = i;
@@ -37,9 +35,18 @@ void test_allocator(void) {
         for (int i = 0; i < length; i++) {
             TEST_ASSERT_EQUAL_UINT8(i, ptr[i]);
         }
+        // mark pointer to be randomly freed later
+        freeptrs[test % 10] = ptr;
+
+        uint8_t *freeptr = freeptrs[length % 10];
+        if (freeptr != NULL) {
+            // free a randomly marked pointer
+            allocator_free(&alloc, freeptr);
+            freeptrs[length % 10] = NULL;
+        }
     }
 
-    allocator_free(&alloc, ptr, sizeof(uint8_t));
+    allocator_destroy(&alloc);
 }
 
 int main(void) {

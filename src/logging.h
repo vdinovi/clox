@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "allocator.h"
+
 typedef struct LogEvent {
     va_list ap;
     const char *fmt;
@@ -39,8 +41,8 @@ struct Allocator;
 
 typedef struct Logger {
     FILE *stream;
+    struct Allocator *alloc;
     LogLevel level;
-    struct Allocator alloc;
 } Logger;
 
 void logger_init(Logger *logger, FILE *stream, LogLevel level);

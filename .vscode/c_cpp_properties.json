@@ -6,7 +6,8 @@
         ],
         "myDefines": [
             "DEBUG_TRACE_EXECUTION",
-            "DEBUG_ALLOCATIONS"
+            "DEBUG_ALLOCATIONS",
+            "DEBUG_EXPOSE_INTERNALS"
         ]
     },
     "configurations": [

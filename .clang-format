@@ -28,3 +28,4 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
 SpaceBeforeParens: ControlStatements
 BreakBeforeBraces: Custom
+AlignConsecutiveMacros: true

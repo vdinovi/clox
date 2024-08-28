@@ -7,9 +7,12 @@
 #include "allocator.h"
 #include "logging.h"
 
+struct Logger;
+struct Allocator;
+
 typedef struct Program {
-    Allocator alloc;
-    Logger logger;
+    struct Logger *logger;
+    struct Allocator *alloc;
     bool initialized;
 } Program;
 

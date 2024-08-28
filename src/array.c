@@ -11,7 +11,7 @@ static String *empty_string(Allocator *alloc);
 #pragma region Public
 
 Array *array_alloc(Allocator *alloc, size_t unit_size, size_t length) {
-    size_t size = aligned_size(sizeof(Array) + unit_size * length);
+    size_t size = allocator_aligned_size(sizeof(Array) + unit_size * length);
     uint8_t *data = (uint8_t *)allocator_alloc(alloc, size);
     Array *array = (Array *)data;
     array->unit_size = unit_size;
@@ -21,8 +21,8 @@ Array *array_alloc(Allocator *alloc, size_t unit_size, size_t length) {
 }
 
 void array_free(Array *array, Allocator *alloc) {
-    size_t size = aligned_size(sizeof(Array) + array->unit_size * array->length);
-    allocator_free(alloc, (void *)array, size);
+    size_t size = allocator_aligned_size(sizeof(Array) + array->unit_size * array->length);
+    allocator_free(alloc, (void *)array);
 }
 
 String *string_alloc(Allocator *alloc, size_t capacity) {
