@@ -4,7 +4,7 @@
         "locale": "c",
         "cstring": "c",
         "stdbool.h": "c",
-        "opcode.h": "c",
+        "instruction.h": "c",
         "common.h": "c",
         "unity.h": "c",
         "map": "c",

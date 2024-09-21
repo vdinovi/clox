@@ -5,8 +5,8 @@
 
 #include "allocator.h"
 #include "common.h"
+#include "instruction.h"
 #include "logging.h"
-#include "opcode.h"
 #include "program.h"
 #include "vm.h"
 

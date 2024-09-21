@@ -2,7 +2,7 @@
 
 #include "allocator.h"
 #include "assert.h"
-#include "opcode.h"
+#include "instruction.h"
 
 #ifndef UINT24_MAX
 #define UINT24_MAX 16777215

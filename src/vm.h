@@ -4,7 +4,7 @@
 #include "allocator.h"
 #include "assert.h"
 #include "common.h"
-#include "opcode.h"
+#include "instruction.h"
 
 #define STACK_MAX 256
 
