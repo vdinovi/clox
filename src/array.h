@@ -13,12 +13,19 @@ typedef struct Array {
     uint8_t *data;
 } Array;
 
-Array *array_alloc(Allocator *alloc, size_t unit_size, size_t length);
-void array_free(Array *array, Allocator *alloc);
+Array *array_init(Allocator *alloc, size_t unit_size, size_t length);
+void array_destroy(Array *array, Allocator *alloc);
 
 static inline void *array_at(Array *arr, int index) {
     Assert(index >= 0 && index <= (int)arr->length);
     return (void *)(&arr->data[arr->unit_size * index]);
+}
+
+static inline void *array_set(Array *arr, int index, void *value) {
+    Assert(index >= 0 && index <= (int)arr->length);
+    void *target = array_at(arr, index);
+    memcpy(target, value, arr->unit_size);
+    return target;
 }
 
 static inline void array_copy(Array *target, Array *source) {

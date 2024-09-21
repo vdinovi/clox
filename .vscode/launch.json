@@ -50,6 +50,24 @@
             "preLaunchTask": "make build/test_logging.out",
             "stopOnEntry": false,
         },
+        {
+            "name": "(lldb) Debug [test_array]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_array.out",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/test_array.out",
+            "stopOnEntry": false,
+        },
+        {
+            "name": "(lldb) Debug [test_vector]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_vector.out",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/test_vector.out",
+            "stopOnEntry": false,
+        },
     ],
     "inputs": [
         {

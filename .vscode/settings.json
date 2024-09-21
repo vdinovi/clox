@@ -33,7 +33,8 @@
         "allocator.h": "c",
         "string.h": "c",
         "stdint.h": "c",
-        "helpers.h": "c"
+        "helpers.h": "c",
+        "vector.h": "c"
     },
     "cmake.configureOnOpen": false
 }

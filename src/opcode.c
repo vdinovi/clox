@@ -9,7 +9,7 @@
 #endif
 
 #define DEFAULT_OPCODE_CAPACITY 32
-#define DEFAULT_VALUE_CAPACITY 32
+#define DEFAULT_VALUE_CAPACITY  32
 
 #pragma region Declare
 

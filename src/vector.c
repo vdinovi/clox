@@ -13,13 +13,13 @@ static void vec_realloc(Vector *vec, size_t size);
 #pragma region Public
 
 void vector_init(Vector *vec, Allocator *alloc, size_t capacity, size_t unit_size) {
-    vec->data = array_alloc(alloc, unit_size, capacity);
+    vec->data = array_init(alloc, unit_size, capacity);
     vec->count = 0;
     vec->alloc = alloc;
 }
 
 void vector_destroy(Vector *vec) {
-    array_free(vec->data, vec->alloc);
+    array_destroy(vec->data, vec->alloc);
     vec->data = NULL;
     vec->count = 0;
 }
@@ -30,7 +30,7 @@ void *vector_append(Vector *vec, void *data) {
 
 void *vector_extend(Vector *vec, void *data, size_t count) {
     if (vec->count + count > vec->data->length) {
-        vec_realloc(vec, vec->count * GROWTH_FACTOR);
+        vec_realloc(vec, (vec->data->length > 0 ? vec->data->length : count) * GROWTH_FACTOR);
     }
     Assert(vec->count + count <= vec->data->length);
     Array source = {
@@ -51,10 +51,10 @@ void *vector_extend(Vector *vec, void *data, size_t count) {
 #pragma region Private
 
 static void vec_realloc(Vector *vec, size_t size) {
-    Array *arr = array_alloc(vec->alloc, vec->data->unit_size, size);
+    Array *arr = array_init(vec->alloc, vec->data->unit_size, size);
     Assert(arr != NULL);
     array_copy(arr, vec->data);
-    array_free(vec->data, vec->alloc);
+    array_destroy(vec->data, vec->alloc);
     vec->data = arr;
 }
 

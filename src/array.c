@@ -10,7 +10,7 @@ static String *empty_string(Allocator *alloc);
 
 #pragma region Public
 
-Array *array_alloc(Allocator *alloc, size_t unit_size, size_t length) {
+Array *array_init(Allocator *alloc, size_t unit_size, size_t length) {
     size_t size = allocator_aligned_size(sizeof(Array) + unit_size * length);
     uint8_t *data = (uint8_t *)allocator_alloc(alloc, size);
     Array *array = (Array *)data;
@@ -20,7 +20,7 @@ Array *array_alloc(Allocator *alloc, size_t unit_size, size_t length) {
     return array;
 }
 
-void array_free(Array *array, Allocator *alloc) {
+void array_destroy(Array *array, Allocator *alloc) {
     allocator_free(alloc, (void *)array);
 }
 
