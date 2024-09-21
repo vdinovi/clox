@@ -41,6 +41,15 @@
             "preLaunchTask": "make build/test_allocator.out",
             "stopOnEntry": false,
         },
+        {
+            "name": "(lldb) Debug [test_logging]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_logging.out",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/test_logging.out",
+            "stopOnEntry": false,
+        },
     ],
     "inputs": [
         {

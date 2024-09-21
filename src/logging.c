@@ -4,7 +4,6 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "allocator.h"
 #include "assert.h"
 #include "logging.h"
 
@@ -28,18 +27,12 @@ static inline bool is_valid_log_level(int level);
 #pragma region Public
 
 void logger_init(Logger *logger, FILE *stream, LogLevel level) {
-    Allocator *alloc = (Allocator *)malloc(sizeof(Allocator));
-    Assert(alloc != NULL);
-    allocator_init(alloc, logger);
-
     *logger = (Logger){ .stream = stream != NULL ? stream : DEFAULT_LOG_STREAM,
-                        .level = is_valid_log_level(level) ? level : DEFAULT_LOG_LEVEL,
-                        .alloc = alloc };
+                        .level = is_valid_log_level(level) ? level : DEFAULT_LOG_LEVEL };
 }
 
 void logger_destroy(Logger *logger) {
-    allocator_destroy(logger->alloc);
-    logger->alloc = NULL;
+    (void)logger;
     // TODO: close file?
 }
 

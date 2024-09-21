@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "allocator.h"
-
 typedef struct LogEvent {
     va_list ap;
     const char *fmt;
@@ -36,12 +34,8 @@ typedef enum LogLevel {
 static const char *LOG_LEVEL_NAMES[] = {
     "_MINIMUM", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "_MAXIMUM",
 };
-
-struct Allocator;
-
 typedef struct Logger {
     FILE *stream;
-    struct Allocator *alloc;
     LogLevel level;
 } Logger;
 
@@ -51,8 +45,8 @@ void logger_emit(Logger *logger, LogLevel level, const char *file, int line, con
 
 #define TRACE(logger, ...) logger_emit((logger), LOG_LEVEL_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define DEBUG(logger, ...) logger_emit((logger), LOG_LEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-#define INFO(logger, ...) logger_emit((logger), LOG_LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
-#define WARN(logger, ...) logger_emit((logger), LOG_LEVEL_WARN, __FILE__, __LINE__, __VA_ARGS__)
+#define INFO(logger, ...)  logger_emit((logger), LOG_LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#define WARN(logger, ...)  logger_emit((logger), LOG_LEVEL_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define ERROR(logger, ...) logger_emit((logger), LOG_LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 
 #endif

@@ -14,7 +14,7 @@ static struct {
     FILE *file;
     size_t size;
     char *buffer;
-    char *line;
+    char *start;
 } outstream = { 0 };
 
 static T t;
@@ -35,7 +35,7 @@ void setUp(void) {
     TEST_ASSERT_NOT_NULL(outstream.file);
     TEST_ASSERT_NOT_NULL(outstream.buffer);
     logger_init(&logger, outstream.file, LOG_LEVEL_MIN);
-    outstream.line = outstream.buffer;
+    outstream.start = outstream.buffer;
 }
 
 void tearDown(void) {
@@ -48,7 +48,7 @@ void tearDown(void) {
 
 #define FILE "foo.c"
 #define LINE 1234
-#define FMT "int=%d double=%lf size_t=%zu char=%c ptr=%p str=%s"
+#define FMT  "int=%d double=%lf size_t=%zu char=%c ptr=%p str=%s"
 #define ARGS 32, 3.14, (size_t)256, '?', (void *)&t.alloc, "test string"
 
 void test_logger(void) {
@@ -57,13 +57,13 @@ void test_logger(void) {
     for (LogLevel level = LOG_LEVEL_MIN; level <= LOG_LEVEL_MAX; level++) {
         logger_emit(&logger, level, FILE, LINE, FMT, ARGS);
     }
-    outstream.line = outstream.buffer;
+    outstream.start = outstream.buffer;
     for (LogLevel level = LOG_LEVEL_MIN; level <= LOG_LEVEL_MAX; level++) {
         String *log = next_log();
         TEST_ASSERT_NOT_NULL(log->data);
 
         snprintf(message, sizeof(message), FMT, ARGS);
-        outstream.line = assert_log_matches(log->data, message, level, FILE, LINE);
+        assert_log_matches(log->data, message, level, FILE, LINE);
     }
 }
 
@@ -74,16 +74,15 @@ int main(void) {
 }
 
 static String *next_log() {
-    char *start = outstream.line;
+    char *start = outstream.start;
     char *end = start;
-    while (*end != '\n') {
-        end++;
+    while (*end++ != '\n') {
     }
     String *string = string_alloc(&t.alloc, end - start + 1);
     for (char *ch = start; ch != end; ch++) {
         string->data[string->length++] = *ch;
     }
-    outstream.line = end;
+    outstream.start = end;
     return string;
 }
 

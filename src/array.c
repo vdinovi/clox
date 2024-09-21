@@ -21,7 +21,6 @@ Array *array_alloc(Allocator *alloc, size_t unit_size, size_t length) {
 }
 
 void array_free(Array *array, Allocator *alloc) {
-    size_t size = allocator_aligned_size(sizeof(Array) + array->unit_size * array->length);
     allocator_free(alloc, (void *)array);
 }
 

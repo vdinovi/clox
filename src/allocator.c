@@ -40,7 +40,7 @@ static inline bool block_available(BlockHeader header);
 static inline void block_checkout(BlockHeader *header);
 static inline void block_checkin(BlockHeader *header);
 static inline void block_init(BlockHeader *header, size_t size);
-static inline void block_repr(const char *buffer, BlockHeader *block);
+static inline void block_repr(char *buffer, BlockHeader *block);
 
 #pragma endregion
 
@@ -334,7 +334,7 @@ static inline void block_init(BlockHeader *header, size_t size) {
               | ((uint64_t)(size & 0x7FFFFFFFFF) << BLOCK_HEADER_SIZE_SHIFT);
 }
 
-static inline void block_repr(const char *buffer, BlockHeader *block) {
+static inline void block_repr(char *buffer, BlockHeader *block) {
     sprintf(buffer, "BlockHeader { magic: %u, size: %zu, available: %s, data = %p }",
             block_magic(*block), block_size(*block), block_available(*block) ? "true" : "false",
             ((uint8_t *)block) + sizeof(BlockHeader));
