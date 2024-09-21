@@ -19,7 +19,7 @@ void program_init(Program *program, int log_level, FILE *log_stream) {
     Assert(program->logger != NULL);
 
     allocator_init(program->alloc, program->logger);
-    logger_init(program->logger, log_stream, log_level);
+    logger_init(program->logger, "program", log_stream, log_level);
 
     program->initialized = true;
 }

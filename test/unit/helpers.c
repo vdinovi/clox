@@ -11,9 +11,11 @@
 
 #pragma region Public
 
+#define TEST_LOGGER_NAME "test"
+
 void setup(T *t) {
     srand(t->seed != 0 ? t->seed : time(NULL));
-    logger_init(&t->log, t->log_stream != NULL ? t->log_stream : stderr,
+    logger_init(&t->log, TEST_LOGGER_NAME, t->log_stream != NULL ? t->log_stream : stderr,
                 t->log_level > _LOG_LEVEL_MINIMUM ? t->log_level : LOG_LEVEL_TRACE);
     allocator_init(&t->alloc, &t->log);
 }

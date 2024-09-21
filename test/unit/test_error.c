@@ -30,7 +30,7 @@ void test_error(void) {
     for (int test = 0; test < num_test_cases; test++) {
         int code = test_cases[test].code;
         const char *reason = test_cases[test].reason;
-        Error *error = create_error(&t.alloc, code, reason);
+        Error *error = create_error(&t.alloc, code, reason, NULL);
 
         TEST_ASSERT_NOT_NULL(error);
         TEST_ASSERT_EQUAL_INT(code, error->code);
@@ -41,6 +41,18 @@ void test_error(void) {
         TEST_ASSERT_EQUAL_STRING(expected_repr, repr->data);
     }
 }
+
+// void test_error_chain(void) {
+//     Error *err1 = create_error(&t.alloc, 1, "error 1");
+//     Error *err2 = create_error(&t.alloc, 2, "error 2");
+//     error->from = error2;
+
+//     String *repr = error_repr(error, &t.alloc);
+//     TEST_ASSERT_EQUAL_STRING("Error{code=1, reason='error 1'}", repr->data);
+
+//     repr = error_repr(error2, &t.alloc);
+//     TEST_ASSERT_EQUAL_STRING("Error{code=2, reason='error 2'}", repr->data);
+// }
 
 int main(void) {
     UNITY_BEGIN();

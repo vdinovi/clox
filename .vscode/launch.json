@@ -68,6 +68,15 @@
             "preLaunchTask": "make build/test_vector.out",
             "stopOnEntry": false,
         },
+        {
+            "name": "(lldb) Debug [test_error]",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test_error.out",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "make build/test_error.out",
+            "stopOnEntry": false,
+        },
     ],
     "inputs": [
         {

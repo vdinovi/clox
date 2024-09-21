@@ -21,6 +21,8 @@ static T t;
 
 static Logger logger;
 
+#define LOGGER_NAME "test_logging"
+
 static String *next_log();
 static inline const char *assert_log_timestamp(const char *ch);
 static inline const char *assert_log_level(const char *ch, LogLevel level);
@@ -34,7 +36,7 @@ void setUp(void) {
     outstream.file = open_memstream(&outstream.buffer, &outstream.size);
     TEST_ASSERT_NOT_NULL(outstream.file);
     TEST_ASSERT_NOT_NULL(outstream.buffer);
-    logger_init(&logger, outstream.file, LOG_LEVEL_MIN);
+    logger_init(&logger, LOGGER_NAME, outstream.file, LOG_LEVEL_MIN);
     outstream.start = outstream.buffer;
 }
 
@@ -86,6 +88,16 @@ static String *next_log() {
     return string;
 }
 
+static inline const char *assert_log_name(const char *ch, const char *name) {
+    size_t name_length = strlen(LOGGER_NAME);
+    TEST_ASSERT_EQUAL_CHAR_MESSAGE('[', *ch++, "expected '['");
+    TEST_ASSERT_EQUAL_STRING_LEN(name, ch, name_length);
+    ch += name_length;
+    TEST_ASSERT_EQUAL_CHAR_MESSAGE(']', *ch++, "expected ']'");
+    TEST_ASSERT_EQUAL_CHAR_MESSAGE(' ', *ch++, "expected ' '");
+    return ch;
+}
+
 static inline const char *assert_log_timestamp(const char *ch) {
     TEST_ASSERT_EQUAL_IS_DIGIT(*ch++);
     TEST_ASSERT_EQUAL_IS_DIGIT(*ch++);
@@ -130,6 +142,10 @@ static inline const char *assert_log_location(const char *ch, const char *filena
 static char *assert_log_matches(const char *log, const char *message, LogLevel level,
                                 const char *filename, int line) {
     const char *ch = log;
+
+    ch = assert_log_name(ch, LOGGER_NAME);
+    while (*ch == ' ')
+        ch++;
 
     ch = assert_log_timestamp(ch);
     while (*ch == ' ')

@@ -35,11 +35,12 @@ static const char *LOG_LEVEL_NAMES[] = {
     "_MINIMUM", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "_MAXIMUM",
 };
 typedef struct Logger {
+    const char *name;
     FILE *stream;
     LogLevel level;
 } Logger;
 
-void logger_init(Logger *logger, FILE *stream, LogLevel level);
+void logger_init(Logger *logger, const char *name, FILE *stream, LogLevel level);
 void logger_destroy(Logger *logger);
 void logger_emit(Logger *logger, LogLevel level, const char *file, int line, const char *fmt, ...);
 
