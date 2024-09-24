@@ -80,7 +80,7 @@ static String *next_log() {
     char *end = start;
     while (*end++ != '\n') {
     }
-    String *string = string_alloc(&t.alloc, end - start + 1);
+    String *string = string_create(&t.alloc, end - start + 1);
     for (char *ch = start; ch != end; ch++) {
         string->data[string->length++] = *ch;
     }

@@ -13,7 +13,7 @@ static void vec_realloc(Vector *vec, size_t size);
 #pragma region Public
 
 void vector_init(Vector *vec, Allocator *alloc, size_t capacity, size_t unit_size) {
-    vec->data = array_init(alloc, unit_size, capacity);
+    vec->data = array_create(alloc, unit_size, capacity);
     vec->count = 0;
     vec->alloc = alloc;
 }
@@ -51,7 +51,7 @@ void *vector_extend(Vector *vec, void *data, size_t count) {
 #pragma region Private
 
 static void vec_realloc(Vector *vec, size_t size) {
-    Array *arr = array_init(vec->alloc, vec->data->unit_size, size);
+    Array *arr = array_create(vec->alloc, vec->data->unit_size, size);
     Assert(arr != NULL);
     array_copy(arr, vec->data);
     array_destroy(vec->data, vec->alloc);

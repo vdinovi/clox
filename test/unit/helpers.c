@@ -40,7 +40,7 @@ String *escape_string(T *t, const char *source) {
             length++;
         }
     }
-    String *escaped = (String *)string_alloc(&t->alloc, length + 1);
+    String *escaped = (String *)string_create(&t->alloc, length + 1);
     for (int i = 0; source[i] != '\0'; i++) {
         switch (source[i]) {
         case '\n':

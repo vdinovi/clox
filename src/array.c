@@ -10,7 +10,7 @@ static String *empty_string(Allocator *alloc);
 
 #pragma region Public
 
-Array *array_init(Allocator *alloc, size_t unit_size, size_t length) {
+Array *array_create(Allocator *alloc, size_t unit_size, size_t length) {
     size_t size = allocator_aligned_size(sizeof(Array) + unit_size * length);
     uint8_t *data = (uint8_t *)allocator_alloc(alloc, size);
     Array *array = (Array *)data;
@@ -24,13 +24,28 @@ void array_destroy(Array *array, Allocator *alloc) {
     allocator_free(alloc, (void *)array);
 }
 
-String *string_alloc(Allocator *alloc, size_t capacity) {
+Array *array_resize(Array *array, Allocator *alloc, size_t length) {
+    Array *copy = array_create(alloc, array->unit_size, length);
+    for (size_t i = 0; i < array->unit_size * length; i++) {
+        copy->data[i] = i < array->unit_size * array->length ? array->data[i] : 0;
+    }
+    // TODO: should this free the source array?
+    // array_destroy(array, alloc);
+    return copy;
+}
+
+String *string_create(Allocator *alloc, size_t capacity) {
     uint8_t *data = (uint8_t *)allocator_alloc(alloc, sizeof(String) + capacity);
     String *string = (String *)data;
+    string->capacity = capacity;
     string->length = 0;
     string->data = (char *)(data + sizeof(String));
-    string->data[0] = '\0';
+    memset(string->data, 0, capacity);
     return string;
+}
+
+void string_destroy(String *str, Allocator *alloc) {
+    allocator_free(alloc, (void *)str);
 }
 
 String *string_dup_cstr(Allocator *alloc, const char *source) {
@@ -38,8 +53,10 @@ String *string_dup_cstr(Allocator *alloc, const char *source) {
     if (length == 0) {
         return empty_string(alloc);
     }
-    uint8_t *data = (uint8_t *)allocator_alloc(alloc, sizeof(String) + length + 1);
+    size_t capacity = length + 1;
+    uint8_t *data = (uint8_t *)allocator_alloc(alloc, sizeof(String) + capacity);
     String *string = (String *)data;
+    string->capacity = capacity;
     string->length = length;
     string->data = (char *)(data + sizeof(String));
     char *target = string->data;
@@ -53,8 +70,10 @@ String *string_dup(Allocator *alloc, String *source) {
     if (source->length == 0) {
         return empty_string(alloc);
     }
-    uint8_t *data = (uint8_t *)allocator_alloc(alloc, sizeof(String) + source->length + 1);
+    size_t capacity = source->length + 1;
+    uint8_t *data = (uint8_t *)allocator_alloc(alloc, sizeof(String) + capacity);
     String *string = (String *)data;
+    string->capacity = capacity;
     string->length = source->length;
     string->data = (char *)(data + sizeof(String));
     char *target = string->data;
@@ -71,13 +90,15 @@ String *string_sprintf(Allocator *alloc, const char *format, ...) {
     va_end(args);
     Assert(length >= 0);
 
-    uint8_t *data = (uint8_t *)allocator_alloc(alloc, sizeof(String) + length + 1);
+    size_t capacity = length + 1;
+    uint8_t *data = (uint8_t *)allocator_alloc(alloc, sizeof(String) + capacity);
     String *string = (String *)data;
+    string->capacity = capacity;
     string->data = (char *)(data + sizeof(String));
     char *target = string->data;
 
     va_start(args, format);
-    length = vsnprintf(target, length + 1, format, args);
+    length = vsnprintf(target, capacity, format, args);
     va_start(args, format);
     Assert(length >= 0);
     string->length = length;
@@ -92,6 +113,7 @@ String *string_sprintf(Allocator *alloc, const char *format, ...) {
 // TODO: could be optimized by returning the same instance but I worry about mutability
 static String *empty_string(Allocator *alloc) {
     String *string = (String *)allocator_alloc(alloc, sizeof(String));
+    string->capacity = 0;
     string->data = "";
     string->length = 0;
     return string;
